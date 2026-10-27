@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidVehicle(data) {
+      return data.regNumber is string && data.regNumber.size() > 0 && data.regNumber.size() <= 40
+        && data.type is string && data.type.size() > 0 && data.type.size() <= 30
+        && data.salaryType is string && data.salaryType.size() > 0 && data.salaryType.size() <= 40
+        && (!('nameOrModel' in data) || data.nameOrModel is string)
+        && (!('isElectric' in data) || data.isElectric is bool)
+        && (!('routeOrArea' in data) || data.routeOrArea is string)
+        && (!('driverName' in data) || data.driverName is string)
+        && (!('driverPhone' in data) || data.driverPhone is string)
+        && (!('salaryRate' in data) || data.salaryRate is number)
+        && (!('bankName' in data) || data.bankName is string)
+        && (!('monthlyEmi' in data) || data.monthlyEmi is number)
+        && (!('emiDueDay' in data) || data.emiDueDay is number)
+        && (!('totalLoanAmount' in data) || data.totalLoanAmount is number)
+        && (!('isActive' in data) || data.isActive is bool)
+        && (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time))
+        && (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidDailyLog(data) {
+      return data.vehicleId is string && data.vehicleId.size() > 0
+        && data.date is string && data.date.size() >= 7 && data.date.size() <= 12
+        && (!('vehicleReg' in data) || data.vehicleReg is string)
+        && (!('grossIncome' in data) || data.grossIncome is number)
+        && (!('fuelExpense' in data) || data.fuelExpense is number)
+        && (!('isEvCharging' in data) || data.isEvCharging is bool)
+        && (!('evUnitsKwh' in data) || data.evUnitsKwh is number)
+        && (!('evRatePerUnit' in data) || data.evRatePerUnit is number)
+        && (!('evChargingExpense' in data) || data.evChargingExpense is number)
+        && (!('tollAndTaxExpense' in data) || data.tollAndTaxExpense is number)
+        && (!('maintenanceExpense' in data) || data.maintenanceExpense is number)
+        && (!('maintenanceWorkDetails' in data) || data.maintenanceWorkDetails is string)
+        && (!('maintenanceBillNo' in data) || data.maintenanceBillNo is string)
+        && (!('maintenanceVendor' in data) || data.maintenanceVendor is string)
+        && (!('challanOrFineExpense' in data) || data.challanOrFineExpense is number)
+        && (!('helperWageExpense' in data) || data.helperWageExpense is number)
+        && (!('foodOrMiscExpense' in data) || data.foodOrMiscExpense is number)
+        && (!('totalOperatingExpenses' in data) || data.totalOperatingExpenses is number)
+        && (!('driverWageEarned' in data) || data.driverWageEarned is number)
+        && (!('driverPaidAmount' in data) || data.driverPaidAmount is number)
+        && (!('isDriverFullyPaid' in data) || data.isDriverFullyPaid is bool)
+        && (!('netDailyProfit' in data) || data.netDailyProfit is number)
+        && (!('tripsOrRounds' in data) || data.tripsOrRounds is number)
+        && (!('notes' in data) || data.notes is string)
+        && (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time))
+        && (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidDriverPayout(data) {
+      return data.driverName is string && data.driverName.size() > 0 && data.driverName.size() <= 80
+        && data.amount is number && data.amount > 0
+        && data.date is string && data.date.size() >= 7 && data.date.size() <= 12
+        && (!('vehicleId' in data) || data.vehicleId is string)
+        && (!('vehicleReg' in data) || data.vehicleReg is string)
+        && (!('paymentMode' in data) || data.paymentMode is string)
+        && (!('notes' in data) || data.notes is string)
+        && (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time))
+        && (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidBankInstallment(data) {
+      return data.vehicleId is string && data.vehicleId.size() > 0
+        && data.yearMonth is string && data.yearMonth.size() == 7
+        && data.amountDue is number
+        && (!('vehicleReg' in data) || data.vehicleReg is string)
+        && (!('bankName' in data) || data.bankName is string)
+        && (!('amountPaid' in data) || data.amountPaid is number)
+        && (!('paymentDate' in data) || data.paymentDate is string)
+        && (!('dueDay' in data) || data.dueDay is number)
+        && (!('isPaid' in data) || data.isPaid is bool)
+        && (!('referenceOrTxnNo' in data) || data.referenceOrTxnNo is string)
+        && (!('notes' in data) || data.notes is string)
+        && (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time))
+        && (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /vehicles/{vehicleId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidVehicle(request.resource.data);
+      }
+
+      match /daily_logs/{logId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidDailyLog(request.resource.data);
+      }
+
+      match /driver_payouts/{payoutId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidDriverPayout(request.resource.data);
+      }
+
+      match /bank_installments/{installmentId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidBankInstallment(request.resource.data);
+      }
+    }
+  }
+}

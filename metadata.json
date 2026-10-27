@@ -1,0 +1,8 @@
+{
+  "name": "Sajilo Gadi Khata",
+  "description": "Public vehicle daily income, expense, driver wage calculation, bank installment tracking, and net profit ledger.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

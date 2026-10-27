@@ -1,0 +1,118 @@
+{
+  "entities": {
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Public or commercial transport vehicle in user's fleet",
+      "type": "object",
+      "properties": {
+        "regNumber": { "type": "string", "description": "Vehicle license registration plate number" },
+        "nameOrModel": { "type": "string", "description": "Fleet name or model" },
+        "type": { "type": "string", "description": "Type of vehicle: BUS, MICROBUS, TAXI, AUTO, TRUCK, EV_BUS, EV_VAN, OTHER" },
+        "isElectric": { "type": "boolean", "description": "Whether the vehicle is electric (EV)" },
+        "routeOrArea": { "type": "string", "description": "Assigned route or operating area" },
+        "driverName": { "type": "string", "description": "Assigned driver name" },
+        "driverPhone": { "type": "string", "description": "Driver contact phone" },
+        "salaryType": { "type": "string", "description": "FIXED_DAILY, PERCENT_OF_INCOME, PERCENT_OF_NET" },
+        "salaryRate": { "type": "number", "description": "Daily wage rate or percentage commission" },
+        "bankName": { "type": "string", "description": "Financing bank name" },
+        "monthlyEmi": { "type": "number", "description": "Monthly loan installment amount" },
+        "emiDueDay": { "type": "number", "description": "Day of month EMI is due (1-31)" },
+        "totalLoanAmount": { "type": "number", "description": "Total financed loan amount" },
+        "isActive": { "type": "boolean", "description": "Active status in fleet" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["regNumber", "type", "salaryType"]
+    },
+    "DailyLog": {
+      "title": "DailyLog",
+      "description": "Daily operational shift income, expenses, EV charging, repair bill details, and driver wage calculation",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string", "description": "Associated vehicle document ID" },
+        "vehicleReg": { "type": "string", "description": "Vehicle registration number" },
+        "date": { "type": "string", "description": "Shift date in YYYY-MM-DD" },
+        "grossIncome": { "type": "number", "description": "Total gross fares collected" },
+        "fuelExpense": { "type": "number", "description": "Fuel expense (diesel/petrol/gas)" },
+        "isEvCharging": { "type": "boolean", "description": "Whether EV charging was used" },
+        "evUnitsKwh": { "type": "number", "description": "EV charging units in kWh" },
+        "evRatePerUnit": { "type": "number", "description": "EV charging rate per unit" },
+        "evChargingExpense": { "type": "number", "description": "Total EV charging cost" },
+        "tollAndTaxExpense": { "type": "number", "description": "Tolls, entry taxes and parking" },
+        "maintenanceExpense": { "type": "number", "description": "Maintenance, parts and repair cost" },
+        "maintenanceWorkDetails": { "type": "string", "description": "Itemized details of repairs, parts replaced and work done" },
+        "maintenanceBillNo": { "type": "string", "description": "Workshop repair bill number or receipt identifier" },
+        "maintenanceVendor": { "type": "string", "description": "Workshop or garage vendor name" },
+        "challanOrFineExpense": { "type": "number", "description": "Police challan or penalty" },
+        "helperWageExpense": { "type": "number", "description": "Conductor or helper daily wage" },
+        "foodOrMiscExpense": { "type": "number", "description": "Food, tea or miscellaneous expenses" },
+        "totalOperatingExpenses": { "type": "number", "description": "Sum of all operating expenses including EV charging" },
+        "driverWageEarned": { "type": "number", "description": "Driver daily wage calculated" },
+        "driverPaidAmount": { "type": "number", "description": "Amount handed to driver on this day" },
+        "isDriverFullyPaid": { "type": "boolean", "description": "True if driver was fully paid today" },
+        "netDailyProfit": { "type": "number", "description": "Gross income minus operating expenses minus driver wage" },
+        "tripsOrRounds": { "type": "number", "description": "Number of trips completed" },
+        "notes": { "type": "string", "description": "Shift notes" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["vehicleId", "date"]
+    },
+    "DriverPayout": {
+      "title": "DriverPayout",
+      "description": "Payment and settlement records made to drivers with date and payment mode",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string", "description": "Vehicle ID" },
+        "vehicleReg": { "type": "string", "description": "Vehicle Reg Number" },
+        "driverName": { "type": "string", "description": "Driver Name" },
+        "amount": { "type": "number", "description": "Amount paid to driver" },
+        "date": { "type": "string", "description": "Payment date YYYY-MM-DD" },
+        "paymentMode": { "type": "string", "description": "Cash, Mobile Wallet (eSewa/Khalti), Bank Transfer" },
+        "notes": { "type": "string", "description": "Settlement remarks or receipt reference" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["driverName", "amount", "date"]
+    },
+    "BankInstallment": {
+      "title": "BankInstallment",
+      "description": "Monthly bank loan EMI records per vehicle",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string", "description": "Vehicle ID" },
+        "vehicleReg": { "type": "string", "description": "Vehicle Reg Number" },
+        "yearMonth": { "type": "string", "description": "Year and month (YYYY-MM)" },
+        "bankName": { "type": "string", "description": "Financing bank name" },
+        "amountDue": { "type": "number", "description": "EMI amount due" },
+        "amountPaid": { "type": "number", "description": "EMI amount paid" },
+        "paymentDate": { "type": "string", "description": "Payment date (YYYY-MM-DD)" },
+        "dueDay": { "type": "number", "description": "Due day of month" },
+        "isPaid": { "type": "boolean", "description": "Paid status" },
+        "referenceOrTxnNo": { "type": "string", "description": "Bank transaction reference number" },
+        "notes": { "type": "string", "description": "Installment notes" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["vehicleId", "yearMonth", "amountDue"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/vehicles/{vehicleId}": {
+      "schema": { "$ref": "#/entities/Vehicle" },
+      "description": "User's fleet of public and commercial transport vehicles"
+    },
+    "/users/{userId}/daily_logs/{logId}": {
+      "schema": { "$ref": "#/entities/DailyLog" },
+      "description": "Daily shift logs with income, expenses, EV charging, repair bill details, and driver wage"
+    },
+    "/users/{userId}/driver_payouts/{payoutId}": {
+      "schema": { "$ref": "#/entities/DriverPayout" },
+      "description": "Driver payouts and wage settlement records with date"
+    },
+    "/users/{userId}/bank_installments/{installmentId}": {
+      "schema": { "$ref": "#/entities/BankInstallment" },
+      "description": "Bank loan monthly installments (EMI) per vehicle"
+    }
+  }
+}
